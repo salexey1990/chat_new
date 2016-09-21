@@ -7,7 +7,8 @@ var log = require('libs/log')(module);
 var app = express();
 app.set('port', config.get('port'));
 
-app.set('views', __dirname + '/tamplates');
+app.engine('ejs', require('ejs-locals'));
+app.set('views', __dirname + '/template');
 app.set('view engine', 'ejs');
 
 app.use(express.favicon());
@@ -22,9 +23,7 @@ app.use(express.cookieParser('your secret here'));
 app.use(app.router);
 
 app.get('/', function ( req, res, next ) {
-	res.render('index', {
-		body: '<b>Hello</b>'
-	});
+	res.render('index');
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
