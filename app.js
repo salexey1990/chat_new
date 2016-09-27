@@ -3,6 +3,7 @@ var http = require('http');
 var path = require('path');
 var config = require('config');
 var log = require('libs/log')(module);
+var HttpError = require('error').HttpError;
 
 var app = express();
 app.set('port', config.get('port'));
@@ -20,39 +21,29 @@ if (app.get('env') == 'development') {
 
 app.use(express.bodyParser());
 app.use(express.cookieParser('your secret here'));
+app.use(require('middleware/sendHttpError'));
 app.use(app.router);
-
-app.get('/', function ( req, res, next ) {
-	res.render('index');
-});
-
+require('routes')(app);
 app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use(function( err, req, res, next ) {
-	if (app.get('env') == 'development') {
-		var errorHandler = express.errorHandler();
-		errorHandler( err, req, res, next );
-	} else {
-		res.send(500);
+	if (typeof err == 'number') {
+		err = new HttpError(err);
 	}
+	if (err instanceof HttpError) {
+		res.sendHttpError(err);
+	} else {
+		if (app.get('env') == 'development') {
+		express.errorHandler()( err, req, res, next );
+		} else {
+			log.error(err);
+			err = new HttpError(500);
+			res.sendHttpError(err);
+		}
+	}
+	
 });
-
-// var routes = require('./routes');
-// var user = require('./routes/user');
-
-
-
-
-
-
-// // development only
-// if ('development' == app.get('env')) {
-//   app.use(express.errorHandler());
-// }
-
-// app.get('/', routes.index);
-// app.get('/users', user.list);
 
 http.createServer(app).listen(config.get('port'), function(){
   log.info('Express server listening on port ' + config.get('port'));
