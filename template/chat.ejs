@@ -13,13 +13,13 @@
 
 <script type="text/javascript">
 	
-	var form = $('#room form');
 	var input = $('#room input')
 	var ul = $('#room ul');
+	var form = $('#room form');
 
 	var socket = io.connect('', {
 		
-		'reconnect': false
+		reconnect: false
 	});
 
 	// form.submit(function() {
@@ -62,10 +62,10 @@
 	};
 
 	function reconnect() {
-		socket.on('error', function() {
-			setTimeout(reconnect. 500);
+		socket.once('error', function() {
+			setTimeout(reconnect, 500);
 		});
-		socket.socket.sonnect();
+		socket.socket.connect();
 	};
 
 	function printStatus(status) {
@@ -73,7 +73,7 @@
 	};
 
 	function printMessage(text) {
-    $('<li>').append($('<i>').text(text)).appendTo(ul);
+    $('<li>').text(text).appendTo(ul);
   }
 
 

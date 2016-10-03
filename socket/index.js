@@ -11,7 +11,7 @@ module.exports = function(server) {
 		socket.on('message', function(text, cb) {
 			console.log(text);
 			socket.broadcast.emit('message', text);
-			cb(); 
+			cb && cb(); 
 		});
 	});
 };
